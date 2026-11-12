@@ -3,6 +3,19 @@ export const LANGUAGES = ['zh-CN', 'en', 'ja'];
 // Keep each message together so changes cannot silently omit a supported language.
 // The column order is Chinese, English, Japanese. No remote translation requests.
 const copy = {
+  home: ["回到首页", "Back to title", "タイトルへ"],
+  gallery: ["异常画廊", "Anomaly gallery", "異変ギャラリー"],
+  galleryEyebrow: ["那些走过的异常", "PASSAGES REMEMBERED", "見つけた異変の記録"],
+  galleryCopy: ["正确识别并通过异常后，即可在这里重访。", "Correctly pass an anomaly to revisit it here.", "異変を正しく見抜いて通過すると、ここで再び見ることができます。"],
+  galleryCount: ["已收录 {count} / {total}", "Collected {count} / {total}", "収集済み {count} / {total}"],
+  gallerySaved: ["收录记录保存在当前设备，重新挑战不会清空。", "Your collection is saved on this device and survives new runs.", "記録はこの端末に保存され、再挑戦しても残ります。"],
+  galleryUnsaved: ["暂时无法保存，新增收录仅在本次打开期间保留。", "Saving is unavailable. New entries will only last for this visit.", "保存できません。新しい記録は今回のプレイ中のみ保持されます。"],
+  galleryLocked: ["尚未发现", "Undiscovered", "未発見"],
+  galleryLockedHint: ["成功通过后解锁", "Pass correctly to unlock", "正しく通過すると解放"],
+  galleryInspect: ["进入查看 ↗", "Explore ↗", "見に行く ↗"],
+  galleryBack: ["返回画廊", "Back to gallery", "ギャラリーへ"],
+  galleryViewHint: ["自由观察 · 此处不计入挑战", "Explore freely · No scoring here", "自由に観察 · 挑戦には影響しません"],
+
   title: ['末班回廊', 'The Last Passage', '終電回廊'],
   titleFirst: ['末班', 'The Last', '終電'],
   titleLast: ['回廊', 'Passage', '回廊'],
