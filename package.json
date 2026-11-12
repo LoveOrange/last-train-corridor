@@ -1,0 +1,31 @@
+{
+  "name": "last-train-corridor",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node build.mjs",
+    "dev": "node serve.mjs",
+    "test": "node --test src/*.test.js"
+  },
+  "dependencies": {
+    "three": "0.180.0"
+  },
+  "devDependencies": {
+    "esbuild": "0.25.11"
+  },
+  "description": "末班回廊 / The Last Passage — a procedural first-person anomaly corridor game built with Three.js.",
+  "license": "MIT",
+  "author": "Linsama",
+  "homepage": "https://corridor.linsama.com/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/LoveOrange/last-train-corridor.git"
+  },
+  "bugs": {
+    "url": "https://github.com/LoveOrange/last-train-corridor/issues"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}
