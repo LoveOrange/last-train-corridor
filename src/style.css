@@ -10,3 +10,31 @@ body{overscroll-behavior:none;-webkit-user-select:none;user-select:none}button,i
 @media(max-height:550px) and (max-width:600px){.rule-card{display:none}.intro-content .mobile-rule{display:block;font-size:10px;line-height:1.6;margin-top:4px}h1{font-size:36px}.intro-top{display:none}}
 
 #touch-actions #turn{position:static;width:56px;height:56px;border-radius:8px;font-size:24px}#voice-caption{border-left:2px solid #d5c68d;background:#0b160e88;padding:10px 12px;color:#dbe3cc;font-size:11px;line-height:1.8}
+
+/* Native language names stay discoverable even before the player can read the UI. */
+html,body{font-family:Inter,"PingFang SC","Hiragino Kaku Gothic ProN","Yu Gothic","Microsoft YaHei",sans-serif}
+#intro{overflow-y:auto;gap:20px}.intro-top,.intro-bottom,.intro-content{flex-shrink:0}h1{font-size:clamp(58px,7vw,96px)}
+.intro-top{align-items:center;gap:16px}.intro-top>span:nth-child(2){margin-left:auto}
+.language-picker{display:flex;align-items:center;gap:10px;font-size:10px;letter-spacing:.04em;flex-shrink:0}
+.language-picker select{font:inherit;color:#e3e8d7;background:#192820;border:1px solid #9eaf9266;min-height:44px;max-width:152px;padding:8px;border-radius:2px}
+select:focus-visible,a:focus-visible{outline:2px solid #e7d78b;outline-offset:4px}
+.intro-content .eyebrow b{font-weight:400}.intro-content{max-width:58%}
+.intro-content h1>span{display:block}
+html[lang=en] h1{font-size:clamp(54px,6.5vw,92px);letter-spacing:.035em}
+html[lang=en] h1 small{display:none}html[lang=en] .intro-copy{letter-spacing:.04em}
+html[lang=ja] h1{font-family:"Hiragino Mincho ProN","Yu Mincho","Songti SC",serif}
+.intro-bottom{align-items:center;gap:14px;letter-spacing:.05em}
+.project-links{display:flex;flex-wrap:wrap;gap:8px 24px;align-items:center}
+.project-links a{display:inline-flex;align-items:center;min-height:44px;color:#d6c990;text-decoration:none;border-bottom:1px solid transparent;font-size:11px;letter-spacing:.04em}
+.project-links a:hover{color:#f4e6ae;border-bottom-color:#d6c99088}
+.rule-card{width:310px}.rule-card p{display:flex;align-items:baseline;line-height:1.7}.rule-card b{flex-shrink:0}.rule-card>div{line-height:1.8}
+[data-i18n=pausedCopy],[data-i18n=endingCopy],[data-i18n=controlDetails]{white-space:pre-line}
+.settings-heading h2{font-size:25px;line-height:1.35;letter-spacing:.04em}.settings-heading .eyebrow{line-height:1.7}
+.setting-row select{min-width:0}.setting-row>span{min-width:0;line-height:1.6}.setting-row input{flex-shrink:0}
+.voice-test{flex-wrap:wrap;gap:6px 16px}.voice-test small{line-height:1.7}.modal-overlay{overflow-y:auto}
+@media(max-width:900px){.intro-top>span:nth-child(2){display:none}.language-picker{margin-left:auto}.rule-card{display:none}.intro-content{max-width:100%}.mobile-rule{display:block;color:#c3cbb8;font-size:11px;line-height:1.8}.intro-bottom{flex-wrap:wrap}.project-links{gap:8px 20px}}
+@media(max-width:700px){#intro{gap:18px}.intro-top{padding-bottom:10px;gap:12px}.intro-top>span:first-child{max-width:51%;line-height:1.8;letter-spacing:.04em}.language-picker{gap:6px}.language-picker>span{display:none}.language-picker select{max-width:150px}.intro-content h1{font-size:66px}html[lang=en] h1{font-size:62px}.intro-copy{line-height:1.8}.intro-bottom{align-items:flex-start;padding-top:10px;gap:4px}.intro-bottom>span{line-height:1.8;width:100%}.project-links{width:100%}.project-links a{font-size:11px}.intro-content .mobile-rule{max-width:360px}.rule-card{display:none}}
+@media(max-width:370px){.hud-brand>div{display:none}html[lang=en] h1{font-size:54px}.setting-row{flex-wrap:wrap}.setting-row select{max-width:100%}.language-picker select{max-width:136px}.project-links{gap:6px 16px}}
+@media(max-width:700px) and (max-height:700px){#intro{gap:8px;padding-top:max(12px,env(safe-area-inset-top));padding-bottom:max(12px,env(safe-area-inset-bottom))}.intro-content h1,html[lang=en] h1{font-size:52px;margin:14px 0}.intro-content h1 small{display:none}.intro-content .intro-copy{margin:12px 0}.intro-content .mobile-rule{font-size:10px}.intro-top{padding-bottom:8px}}
+@media(max-height:550px){#intro{gap:14px}.intro-content{margin:0}.intro-content h1,html[lang=en] h1{font-size:46px}.intro-content h1 span+span{margin-left:.15em}.intro-content .eyebrow{margin:0}.intro-content .intro-copy{margin:10px 0}.intro-content .mobile-rule{display:block;margin:6px 0 0}.intro-top{display:flex}.intro-top>span:nth-child(2){display:none}.intro-content h1 small{display:none}.intro-content .start-button{padding:13px 20px}.intro-bottom{gap:4px;padding-top:4px}.intro-bottom>span{width:auto}.project-links{width:auto}.rule-card{display:none}.pause-card{max-width:500px}}
+@media(min-width:701px) and (max-height:550px){#intro{gap:8px}.intro-content{max-width:62%}.intro-content h1>span{display:inline}.intro-content .mobile-rule{position:absolute;right:24px;bottom:100px;width:30%;margin:0}.intro-content .intro-copy{font-size:12px}}

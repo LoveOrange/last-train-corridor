@@ -1,8 +1,9 @@
 export const STORAGE_KEY='last-passage-settings-v2';
-export const DEFAULTS={difficulty:'normal',quality:'balanced',controls:'auto',controlSize:1,sensitivity:1,volume:.65,music:.6,sfx:.75,voice:.8,muted:false,reducedMotion:false};
+export const DEFAULTS={language:'auto',difficulty:'normal',quality:'balanced',controls:'auto',controlSize:1,sensitivity:1,volume:.65,music:.6,sfx:.75,voice:.8,muted:false,reducedMotion:false};
 export function normalizeSettings(value={}){
   if(!value||typeof value!=='object')value={};
   const result={...DEFAULTS};
+  if(['auto','zh-CN','en','ja'].includes(value.language))result.language=value.language;
   if(['normal','easy'].includes(value.difficulty))result.difficulty=value.difficulty;
   if(['smooth','balanced','high'].includes(value.quality))result.quality=value.quality;
   if(['auto','stick','keys','off'].includes(value.controls))result.controls=value.controls;

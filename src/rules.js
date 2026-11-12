@@ -1,3 +1,4 @@
+import {translate} from './i18n.js';
 export const ANOMALIES = [
   {id:'wrong-sign',label:'出口指示牌的方向反了'},
   {id:'eyes',label:'海报里的图案变成了一只眼睛'},
@@ -51,7 +52,7 @@ export class Run {
 }
 
 // Failure explanations belong to the previous passage and are opt-in only.
-export function failureHint(result,difficulty='normal'){
+export function failureHint(result,difficulty='normal',language='zh-CN'){
   if(difficulty!=='easy'||!result||result.correct)return null;
-  return result.anomaly?`刚才，${result.anomaly.label}。发现异常时应原路返回。`:'刚才的通道没有异常，应继续前进。';
+  return result.anomaly?translate(language,'failureAnomaly',{anomaly:translate(language,'anomaly.'+result.anomaly.id)}):translate(language,'failureNormal');
 }

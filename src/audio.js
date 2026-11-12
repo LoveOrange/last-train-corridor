@@ -1,3 +1,4 @@
+import {resolveLanguage,selectVoice,translate} from './i18n.js';
 // All instruments, room tone, impulse response and footsteps are synthesized locally.
 const midi=n=>440*2**((n-69)/12);
 const CHORDS=[[38,57,60,64],[41,57,60,67],[34,53,57,60],[33,55,58,64]];
@@ -5,11 +6,11 @@ const MELODY=[[74,81,76],[72,79,69],[77,74,81],[76,70,73]];
 export class Ambience {
   constructor(onCaption=()=>{}){
     this.context=null;this.enabled=false;this.paused=true;this.stepAt=0;this.bar=0;this.nextBar=0;this.notes=0;this.onCaption=onCaption;this.settings={volume:.65,music:.6,sfx:.75,voice:.8,muted:false};
-    this.speech=globalThis.speechSynthesis;this.voiceState=this.speech?'等待中文语音':'此设备仅显示广播字幕';
+    this.language='zh-CN';this.speech=globalThis.speechSynthesis;
     this.refreshVoices();this.speech?.addEventListener('voiceschanged',()=>this.refreshVoices());
   }
-  refreshVoices(){const voices=this.speech?.getVoices()||[];this.voice=voices.find(v=>/^zh[-_]CN/i.test(v.lang))||voices.find(v=>/^zh/i.test(v.lang));this.voiceState=this.voice?'中文广播已就绪':this.speech?'未发现中文语音，将显示字幕':'此设备仅显示广播字幕';}
-  configure(settings){this.settings={...settings};this.enabled=!settings.muted&&settings.volume>0;this.applyLevels();if(!this.enabled||!settings.voice)this.speech?.cancel();}
+  refreshVoices(){this.voice=selectVoice(this.speech?.getVoices()||[],this.language);this.voiceState=translate(this.language,this.voice?'voiceReady':this.speech?'voiceMissing':'voiceUnavailable');}
+  configure(settings,language=resolveLanguage(settings.language)){if(language!==this.language)this.speech?.cancel();this.language=language;this.settings={...settings};this.enabled=!settings.muted&&settings.volume>0;this.refreshVoices();this.applyLevels();if(!this.enabled||!settings.voice)this.speech?.cancel();}
   applyLevels(){if(!this.context)return;const t=this.context.currentTime;this.master.gain.setTargetAtTime(this.enabled&&!this.paused?this.settings.volume:0,t,.12);this.musicBus.gain.setTargetAtTime(this.settings.music,t,.12);this.sfxBus.gain.setTargetAtTime(this.settings.sfx,t,.12);}
   async activate(){
     if(!this.enabled)return false;
@@ -57,7 +58,7 @@ export class Ambience {
     this.onCaption(text);this.refreshVoices();
     if(!this.speech||!this.voice||!this.enabled||!this.settings.voice||(this.paused&&!preview))return;
     this.speech.cancel();const u=new SpeechSynthesisUtterance(text);u.lang=this.voice.lang;u.voice=this.voice;u.rate=.82;u.pitch=.85;u.volume=this.settings.volume*this.settings.voice;
-    u.onerror=e=>{if(!['canceled','interrupted'].includes(e.error))this.voiceState='广播语音暂不可用，已显示字幕';};this.speech.speak(u);
+    u.onerror=e=>{if(!['canceled','interrupted'].includes(e.error))this.voiceState=translate(this.language,'voiceError');};this.speech.speak(u);
   }
   pause(paused){this.paused=paused;this.applyLevels();if(paused)this.speech?.cancel();}
   snapshot(){const data=new Float32Array(256);this.analyser?.getFloatTimeDomainData(data);return {enabled:this.enabled,paused:this.paused,state:this.context?.state||'uninitialized',bars:this.bar,notes:this.notes,rms:Math.sqrt(data.reduce((s,n)=>s+n*n,0)/data.length),voice:this.voiceState};}

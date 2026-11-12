@@ -1,3 +1,4 @@
+import {translate} from './i18n.js';
 import * as T from 'three';
 import { Reflector } from 'three/addons/objects/Reflector.js';
 import { RectAreaLightUniformsLib } from 'three/addons/lights/RectAreaLightUniformsLib.js';
@@ -36,18 +37,20 @@ const poster=(...args)=>decal('poster:'+JSON.stringify(args),()=>makePoster(...a
 const shadowTexture=()=>decal('shadow',makeShadow),puddleTexture=()=>decal('puddle',makePuddle);
 
 const numberedSigns=new Map();
-function signTexture(progress,wrong=false){
-  const key=`${progress}:${wrong}`;
-  if(!numberedSigns.has(key))numberedSigns.set(key,label(`${wrong?'↓':'↑'}  南口  /  出口 ${String(progress).padStart(2,'0')}`,'SOUTH EXIT','#e9edda','#174a3b'));
+function signTexture(progress,wrong=false,language='zh-CN'){
+  const key=`${language}:${progress}:${wrong}`;
+  if(!numberedSigns.has(key))numberedSigns.set(key,label(`${wrong?'↓':'↑'}  ${translate(language,'scene.exit',{number:String(progress).padStart(2,'0')})}`,'SOUTH EXIT','#e9edda','#174a3b'));
   return numberedSigns.get(key);
 }
-function landingTexture(progress){return label(`←  南口  /  出口 ${String(progress).padStart(2,'0')}`,'SOUTH EXIT','#e9edda','#174a3b');}
-function buildHall(){
+function landingTexture(progress,language){return label(`←  ${translate(language,'scene.exit',{number:String(progress).padStart(2,'0')})}`,'SOUTH EXIT','#e9edda','#174a3b');}
+function buildHall(language){
+  const t=(key,values)=>translate(language,'scene.'+key,values),localizedBoards=[];
   const scene=new T.Group();
   const architecture=new T.Group();scene.add(architecture);const colliders=[];const allLights=[],fixtures=[];
   function box(w,h,d,x,y,z,mat=dark,parent=architecture){const m=new T.Mesh(unitBox,mat);m.scale.set(w,h,d);m.position.set(x,y,z);m.castShadow=true;m.receiveShadow=true;parent.add(m);return m;}
   function plane(w,h,x,y,z,mat,parent=architecture,ry=0){const m=new T.Mesh(new T.PlaneGeometry(w,h),mat);m.position.set(x,y,z);m.rotation.y=ry;m.receiveShadow=true;parent.add(m);return m;}
   function board(texture,w,h,x,y,z,ry=0,parent=architecture,emissive=.13){const mat=new T.MeshStandardMaterial({map:texture,roughness:.45,metalness:.03,emissive:'#ffffff',emissiveMap:texture,emissiveIntensity:emissive});return plane(w,h,x,y,z,mat,parent,ry);}
+  function localizedBoard(texture,...args){const mesh=board(texture(),...args);localizedBoards.push(()=>{mesh.material.map=mesh.material.emissiveMap=texture();});return mesh;}
   const tileMap=tiles();tileMap.wrapS=tileMap.wrapT=T.RepeatWrapping;tileMap.repeat.set(44/1.2,3.4/1.2);
   const wall=new T.MeshStandardMaterial({map:tileMap,roughness:.28,metalness:.04,bumpMap:tileMap,bumpScale:.012});
   wall.onBeforeCompile=s=>{s.vertexShader=s.vertexShader.replace('#include <common>','#include <common>\nvarying vec3 vRoomP;').replace('#include <begin_vertex>','#include <begin_vertex>\nvRoomP=(modelMatrix*vec4(position,1.)).xyz;');s.fragmentShader=s.fragmentShader.replace('#include <common>','#include <common>\nvarying vec3 vRoomP;').replace('#include <opaque_fragment>','float edge=min(vRoomP.y,3.4-vRoomP.y);float age=sin(vRoomP.z*8.7)*sin(vRoomP.z*3.13+1.);outgoingLight*=mix(.51,1.,smoothstep(0.,.52,edge));outgoingLight*=1.-(age*.5+.5)*.09*exp(-vRoomP.y*2.);\n#include <opaque_fragment>');};
@@ -75,36 +78,36 @@ function buildHall(){
     if(i===1||i===5){const spot=new T.SpotLight('#e2eccb',30,11,1.05,.75,1.5);spot.position.set(0,3.16,z);spot.target.position.set(.4,0,z-1);spot.castShadow=true;spot.shadow.mapSize.set(1024,1024);spot.shadow.bias=-.0003;spot.shadow.normalBias=.025;scene.add(spot,spot.target);allLights.push(spot);}
   }
   let progress=0;
-  const signRed=label('请勿离开','PLEASE STAY HERE','#ffded1','#6c211a');
+  let signRed=label(t('stay'),'PLEASE STAY HERE','#ffded1','#6c211a');
   const signs=[];
   for(const z of [-4,-30]){
     const g=new T.Group();g.position.set(0,2.67,z);architecture.add(g);
     box(3.25,.62,.15,0,0,0,dark,g);for(const x of [-1.3,1.3])box(.018,.45,.018,x,.49,0,steel,g);
-    signs.push(board(signTexture(0),3.15,.52,0,0,.079,0,g,.55));
-    signs.push(board(signTexture(0),3.15,.52,0,0,-.079,Math.PI,g,.55));
+    signs.push(board(signTexture(0,false,language),3.15,.52,0,0,.079,0,g,.55));
+    signs.push(board(signTexture(0,false,language),3.15,.52,0,0,-.079,Math.PI,g,.55));
   }
   const frontSign=signs[0];
-  function updateSigns(){const map=anomaly==='red-sign'?signRed:signTexture(progress,anomaly==='wrong-sign');for(const sign of signs){sign.material.map=map;sign.material.emissiveMap=map;}}
-  board(label('请勿停留','KEEP MOVING','#384a40','#d0d3bc'),1.1,.28,-2.965,2.65,-3,Math.PI/2);
-  board(label('北川站','KITAGAWA STATION','#dce4d3','#3d5b4e'),1.55,.45,2.961,2.7,-10,-Math.PI/2);
+  function updateSigns(){const map=anomaly==='red-sign'?signRed:signTexture(progress,anomaly==='wrong-sign',language);for(const sign of signs){sign.material.map=map;sign.material.emissiveMap=map;}}
+  localizedBoard(()=>label(t('moving'),'KEEP MOVING','#384a40','#d0d3bc'),1.1,.28,-2.965,2.65,-3,Math.PI/2);
+  localizedBoard(()=>label(t('station'),'KITAGAWA STATION','#dce4d3','#3d5b4e'),1.55,.45,2.961,2.7,-10,-Math.PI/2);
   const posterMeshes=[],posterGroups=[];const posterTextures=[];
   for(let i=0;i<3;i++){
     const g=new T.Group();g.position.set(-2.93,1.83,-9-i*6.2);g.rotation.y=Math.PI/2;architecture.add(g);posterGroups.push(g);
     box(1.45,2.03,.065,0,0,0,steel,g);box(1.39,1.97,.035,0,0,.045,dark,g);
-    const map=poster(i);posterTextures.push(map);const m=board(map,1.30,1.86,0,0,.071,0,g,.12);posterMeshes.push(m);
+    const map=poster(i,false,language);posterTextures.push(map);const m=board(map,1.30,1.86,0,0,.071,0,g,.12);posterMeshes.push(m);
     const glass=plane(1.31,1.87,0,0,.074,new T.MeshPhysicalMaterial({color:'#b8cec6',transparent:true,opacity:.045,roughness:.1,metalness:.6}),g);glass.renderOrder=3;
   }
-  const eyePoster=poster(1,true);
-  function door(x,z,name,extra=false){
+  let eyePoster=poster(1,true,language);
+  function door(x,z,number,extra=false){
     const g=new T.Group();g.position.set(x,0,z);g.rotation.y=x>0?-Math.PI/2:Math.PI/2;architecture.add(g);
     box(1.2,2.52,.13,0,1.26,0,dark,g);const d=box(1.06,2.38,.025,0,1.23,.08,standard('#899a8d',.6,.3),g);
-    board(label(name,'STAFF ONLY','#243e31','#b4bead',512,180),.59,.20,0,1.95,.1,0,g,0);
+    localizedBoard(()=>label(t('staff',{number}),'STAFF ONLY','#243e31','#b4bead',512,180),.59,.20,0,1.95,.1,0,g,0);
     box(.028,.22,.045,.37,1.07,.12,steel,g);box(.17,.035,.065,.31,1.14,.16,steel,g);
     for(let y=0;y<8;y++)box(.68,.015,.018,0,.32+y*.05,.11,dark,g);
     box(.028,2.37,.012,-.51,1.23,.1,steel,g);box(.028,2.37,.012,.51,1.23,.1,steel,g);
     if(extra)g.visible=false;return g;
   }
-  const firstDoor=door(2.93,-13,'设备室 01');door(2.93,-26,'设备室 02');const extraDoor=door(-2.93,-28,'设备室 03',true);
+  const firstDoor=door(2.93,-13,'01');door(2.93,-26,'02');const extraDoor=door(-2.93,-28,'03',true);
   const exitLight=new T.PointLight('#b8eacb',5,8,1.5);exitLight.position.set(0,2.3,-38);scene.add(exitLight);
   const inletLight=new T.PointLight('#cfddae',5,8,1.5);inletLight.position.set(0,2.2,4);scene.add(inletLight);
   const clockFace=canvasTexture(512,512,(c,w,h)=>{c.fillStyle='#dadfd0';c.fillRect(0,0,w,h);c.translate(w/2,h/2);c.strokeStyle='#1c3127';c.fillStyle='#22372c';for(let i=0;i<60;i++){c.save();c.rotate(i/60*Math.PI*2);c.fillRect(-2,-225,4,i%5===0?23:10);c.restore();}c.font='32px Arial';c.textAlign='center';c.textBaseline='middle';for(let i=1;i<=12;i++){const a=i/12*Math.PI*2;c.fillText(String(i),Math.sin(a)*178,-Math.cos(a)*178);}c.lineWidth=12;c.beginPath();c.moveTo(0,22);c.lineTo(0,-105);c.stroke();c.lineWidth=7;c.beginPath();c.moveTo(-15,15);c.lineTo(125,-115);c.stroke();c.fillStyle='#815843';c.beginPath();c.arc(0,0,12,0,Math.PI*2);c.fill();});
@@ -114,7 +117,7 @@ function buildHall(){
   for(const z of [-17.3,-30.7]){
     const g=new T.Group();g.position.set(2.88,1.05,z);g.rotation.y=-Math.PI/2;architecture.add(g);
     box(.69,1.11,.19,0,0,0,steel,g);box(.60,1.02,.024,0,0,.112,emergencyMat,g);
-    board(label('消火栓','FIRE HYDRANT','#efe5d1','#8d3028',512,256),.47,.23,0,.23,.13,0,g,.05);
+    localizedBoard(()=>label(t('fire'),'FIRE HYDRANT','#efe5d1','#8d3028',512,256),.47,.23,0,.23,.13,0,g,.05);
     box(.12,.025,.035,.17,-.10,.145,steel,g);const led=new T.Mesh(new T.SphereGeometry(.021,8,8),new T.MeshBasicMaterial({color:'#f65d3f'}));led.position.set(0,.66,.1);g.add(led);
     const light=new T.PointLight('#cc3220',.35,1.8,2);light.position.set(2.6,1.72,z);scene.add(light);
   }
@@ -136,11 +139,12 @@ function buildHall(){
   const shutter=new T.Group();architecture.add(shutter);
   box(5.85,.22,.14,0,3.15,-35,steel,shutter);
   for(let i=0;i<17;i++)box(5.85,.16,.13,0,.19+i*.17,-35,trim,shutter);
-  board(label('封闭 / CLOSED','此处没有出口','#dfd4a4','#344238'),1.8,.4,0,1.7,-34.92,0,shutter,.1);
-  const writing=board(label('你已经来过这里','YOU HAVE BEEN HERE BEFORE','#473c34','#ffffff',1024,256),2.6,.65,-2.96,1.7,-17,Math.PI/2);
-  // Remove the label background so the words sit directly on the glazed tiles.
-  const writingTex=canvasTexture(1024,256,c=>{c.fillStyle='#373b31';c.font='bold 80px serif';c.textAlign='center';c.fillText('你已经来过这里',512,147);});
-  writing.material.map=writingTex;writing.material.emissiveMap=null;writing.material.transparent=true;writing.material.emissiveIntensity=0;
+  localizedBoard(()=>label(t('closed'),t('noExit'),'#dfd4a4','#344238'),1.8,.4,0,1.7,-34.92,0,shutter,.1);
+  // Transparent writing is cached per language, like the other shared decals.
+  const writingTexture=()=>decal('writing:'+language,()=>canvasTexture(1024,256,c=>{c.fillStyle='#373b31';c.font='bold 80px serif';c.textAlign='center';c.fillText(t('wall'),512,147,950);}));
+  const writing=board(writingTexture(),2.6,.65,-2.96,1.7,-17,Math.PI/2);
+  localizedBoards.push(()=>{writing.material.map=writingTexture();});
+  writing.material.emissiveMap=null;writing.material.transparent=true;writing.material.emissiveIntensity=0;
   const prints=new T.Group();architecture.add(prints);
   const footprint=canvasTexture(128,256,c=>{c.fillStyle='rgba(37,43,31,.8)';c.beginPath();c.ellipse(64,91,34,69,0,0,Math.PI*2);c.fill();c.beginPath();c.ellipse(64,200,26,30,0,0,Math.PI*2);c.fill();});
   const printMat=new T.MeshStandardMaterial({map:footprint,transparent:true,depthWrite:false,roughness:.92});
@@ -172,7 +176,7 @@ function buildHall(){
     watcher.rotation.y=0;
   }
   function update(time){dust.rotation.z=Math.sin(time*.06)*.003;if(anomaly==='watcher')watcher.rotation.y=Math.sin(time*.12)*.025;}
-  function state(){return {anomaly,signTexture:frontSign.material.map.uuid,posterTexture:posterMeshes[1].material.map.uuid,visibleVariants:Object.entries(variantGroups).filter(([,g])=>g.visible).map(([id])=>id),firstDoor:firstDoor.visible,posterRotation:posterGroups[0].rotation.z,coneHeight:cone.position.y,clockScale:mainClock.scale.x,guide:guideBase.visible,lightColor:allLights[0].color.getHexString(),progress,exit:exitArchitecture.visible};}
+  function state(){return {language,signText:anomaly==='red-sign'?t('stay'):t('exit',{number:String(progress).padStart(2,'0')}),anomaly,signTexture:frontSign.material.map.uuid,posterTexture:posterMeshes[1].material.map.uuid,visibleVariants:Object.entries(variantGroups).filter(([,g])=>g.visible).map(([id])=>id),firstDoor:firstDoor.visible,posterRotation:posterGroups[0].rotation.z,coneHeight:cone.position.y,clockScale:mainClock.scale.x,guide:guideBase.visible,lightColor:allLights[0].color.getHexString(),progress,exit:exitArchitecture.visible};}
   // A real stairwell is revealed as passage 08; completion happens after walking upstairs.
   const exitArchitecture=new T.Group();scene.add(exitArchitecture);exitArchitecture.visible=false;
   const exitWall=standard('#d6d9c5',.72),stepMat=standard('#c8c9b3',.55);
@@ -186,7 +190,7 @@ function buildHall(){
   }
   box(5.8,STAIR_TOP,4,0,STAIR_TOP/2,STAIR_END-2,stepMat,exitArchitecture);
   const day=new T.MeshBasicMaterial({color:'#fff2cf'});plane(5.8,3.7,0,3.25,-18,day,exitArchitecture);
-  board(label('↑  出口 08','EXIT / STREET LEVEL','#24382b','#eadb9b'),3.8,.75,0,3.1,-5,0,exitArchitecture,.5);
+  localizedBoard(()=>label(t('finalExit'),'EXIT / STREET LEVEL','#24382b','#eadb9b'),3.8,.75,0,3.1,-5,0,exitArchitecture,.5);
   const daylight=new T.RectAreaLight('#fff0c6',14,5,3.5);daylight.position.set(0,3.2,-17.8);exitArchitecture.add(daylight);
   const rails=handrailProfile();
   for(const x of [-2.5,2.5]){
@@ -194,12 +198,20 @@ function buildHall(){
     for(const p of rails.posts)box(.035,p.height,.035,x,p.y,p.z,steel,exitArchitecture);
   }
   function setExit(enabled){architecture.visible=!enabled;dust.visible=!enabled;exitArchitecture.visible=enabled;}
+  function setLanguage(next){
+    if(next===language)return;language=next;
+    signRed=label(t('stay'),'PLEASE STAY HERE','#ffded1','#6c211a');eyePoster=poster(1,true,language);
+    localizedBoards.forEach(update=>update());
+    posterMeshes.forEach((mesh,i)=>{posterTextures[i]=poster(i,false,language);mesh.material.map=mesh.material.emissiveMap=i===1&&anomaly==='eyes'?eyePoster:posterTextures[i];});
+    updateSigns();
+  }
   setAnomaly(null);
   batchFixedBoxes(scene,new Set([guideBase]));
-  return {root:scene,colliders,setAnomaly,update,state,setExit,landmarks:()=>({poster:posterGroups[0].getWorldPosition(new T.Vector3()).toArray(),door:firstDoor.getWorldPosition(new T.Vector3()).toArray(),cone:cone.getWorldPosition(new T.Vector3()).toArray()}),extraTextures:[eyePoster,signRed],revealVariants(){for(const g of Object.values(variantGroups))g.visible=true;},setProgress(value){progress=value;updateSigns();}};
+  return {root:scene,colliders,setLanguage,setAnomaly,update,state,setExit,landmarks:()=>({poster:posterGroups[0].getWorldPosition(new T.Vector3()).toArray(),door:firstDoor.getWorldPosition(new T.Vector3()).toArray(),cone:cone.getWorldPosition(new T.Vector3()).toArray()}),get extraTextures(){return [eyePoster,signRed];},revealVariants(){for(const g of Object.values(variantGroups))g.visible=true;},setProgress(value){progress=value;updateSigns();}};
 }
 
-function buildBend(){
+function buildBend(language){
+  let numbers=[0,0];
   const root=new T.Group();
   function box(w,h,d,x,y,z,mat=trim){const m=new T.Mesh(unitBox,mat);m.scale.set(w,h,d);m.position.set(x,y,z);m.receiveShadow=true;root.add(m);return m;}
   function tiledPlane(w,h,x,y,z,rotation,type){
@@ -226,11 +238,12 @@ function buildBend(){
   for(const [x,z] of [[0,-43],[12,-49],[24,-55]]){box(1.8,.08,.32,x,3.30,z,dark);box(1.65,.025,.22,x,3.24,z,glow);}
   const light=new T.RectAreaLight('#edf1d5',3.5,24,16);light.position.set(12,3.2,-49);light.rotation.x=-Math.PI/2;root.add(light);
   const boards=[];
-  for(const [x,z,ry] of [[-2.95,-43,Math.PI/2],[26.95,-55,-Math.PI/2]]){const map=landingTexture(0);const m=new T.Mesh(new T.PlaneGeometry(2.8,.58),new T.MeshStandardMaterial({map,emissive:'#ffffff',emissiveMap:map,emissiveIntensity:.4}));m.position.set(x,2.1,z);m.rotation.y=ry;root.add(m);boards.push(m);}
+  for(const [x,z,ry] of [[-2.95,-43,Math.PI/2],[26.95,-55,-Math.PI/2]]){const map=landingTexture(0,language);const m=new T.Mesh(new T.PlaneGeometry(2.8,.58),new T.MeshStandardMaterial({map,emissive:'#ffffff',emissiveMap:map,emissiveIntensity:.4}));m.position.set(x,2.1,z);m.rotation.y=ry;root.add(m);boards.push(m);}
   batchFixedBoxes(root);
-  return {root,setNumbers(left,right){[left,right].forEach((n,i)=>{boards[i].material.map=boards[i].material.emissiveMap=landingTexture(n);});}};
+  function setNumbers(left,right){numbers=[left,right];numbers.forEach((n,i)=>{boards[i].material.map=boards[i].material.emissiveMap=landingTexture(n,language);});}
+  return {root,setNumbers,setLanguage(next){language=next;setNumbers(...numbers);}};
 }
-export function buildScene(renderer){
+export function buildScene(renderer,language='zh-CN'){
   RectAreaLightUniformsLib.init();
   const scene=new T.Scene();scene.background=new T.Color('#1f2923');scene.fog=new T.FogExp2('#475348',.019);
   const environment=new RoomEnvironment(),pmrem=new T.PMREMGenerator(renderer),env=pmrem.fromScene(environment,.02);scene.environment=env.texture;scene.environmentIntensity=.22;environment.dispose();pmrem.dispose();
@@ -242,8 +255,8 @@ export function buildScene(renderer){
   };
   const reflector=new Reflector(new T.PlaneGeometry(80,100),{color:0xffffff,textureWidth:512,textureHeight:512,clipBias:.004,multisample:0,shader:reflectionShader});reflector.position.set(0,.003,-17);reflector.rotation.x=-Math.PI/2;reflector.material.transparent=true;reflector.material.depthWrite=false;reflector.renderOrder=2;scene.add(reflector);
 
-  const halls=Array.from({length:3},()=>{const hall=buildHall();scene.add(hall.root);return {index:null,heading:1,hall};});
-  const bends=Array.from({length:4},()=>{const bend=buildBend();scene.add(bend.root);return {index:null,...bend};});
+  const halls=Array.from({length:3},()=>{const hall=buildHall(language);scene.add(hall.root);return {index:null,heading:1,hall};});
+  const bends=Array.from({length:4},()=>{const bend=buildBend(language);scene.add(bend.root);return {index:null,...bend};});
   let active=0,rects=floorRects(0),colliders=[],recycles=0,activeAnomaly=null,shadowTime=0;
   renderer.shadowMap.autoUpdate=false;
   const invalidateShadows=()=>{renderer.shadowMap.needsUpdate=true;};
@@ -283,8 +296,8 @@ export function buildScene(renderer){
     // Upload every decal while the loading menu is visible, including unseen anomalies.
     const textures=new Set();scene.traverse(o=>{for(const m of (Array.isArray(o.material)?o.material:[o.material]))if(m)for(const value of Object.values(m))if(value?.isTexture)textures.add(value);});
     for(const slot of halls)for(const map of slot.hall.extraTextures)textures.add(map);
-    for(let n=0;n<=8;n++)for(const wrong of [false,true])textures.add(signTexture(n,wrong));
-    for(let n=0;n<=8;n++)textures.add(landingTexture(n));
+    for(let n=0;n<=8;n++)for(const wrong of [false,true])textures.add(signTexture(n,wrong,language));
+    for(let n=0;n<=8;n++)textures.add(landingTexture(n,language));
     for(const texture of textures)renderer.initTexture(texture);
     const target=new T.WebGLRenderTarget(160,90),savedTarget=renderer.getRenderTarget(),savedAspect=camera.aspect;
     camera.aspect=16/9;camera.updateProjectionMatrix();renderer.setRenderTarget(target);
@@ -304,5 +317,12 @@ export function buildScene(renderer){
     renderer.setRenderTarget(savedTarget);target.dispose();camera.aspect=savedAspect;camera.updateProjectionMatrix();reset();update(0,START);
   }
 
-  return {scene,reflector,sync,reset,update,state,warmup,setQuality,move:(x,z,dx,dz)=>slideMove(x,z,dx,dz,rects,colliders),setAnomaly:id=>{activeAnomaly=id;hallAt(active).setAnomaly(id);invalidateShadows();},setProgress:n=>hallAt(active).setProgress(n)};
+  function setLanguage(next){
+    if(next===language)return;language=next;
+    halls.forEach(slot=>slot.hall.setLanguage(language));bends.forEach(bend=>bend.setLanguage(language));
+    // Upload once while the menu is open; do not rebuild rooms or alter progression.
+    for(const texture of decalCache.values())renderer.initTexture(texture);
+    for(let n=0;n<=8;n++){renderer.initTexture(landingTexture(n,language));for(const wrong of [false,true])renderer.initTexture(signTexture(n,wrong,language));}
+  }
+  return {scene,reflector,sync,reset,update,state,warmup,setQuality,setLanguage,move:(x,z,dx,dz)=>slideMove(x,z,dx,dz,rects,colliders),setAnomaly:id=>{activeAnomaly=id;hallAt(active).setAnomaly(id);invalidateShadows();},setProgress:n=>hallAt(active).setProgress(n)};
 }

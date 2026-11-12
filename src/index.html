@@ -1,50 +1,50 @@
 <!doctype html>
 <html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#151b19"><meta name="description" content="末班车已经离开。观察地下通道的异常，找到出口。一个可探索的第一人称回廊游戏。"><title>末班回廊 · The Last Passage</title><link rel="stylesheet" href="./style.css"></head>
 <body>
-<canvas id="world" aria-label="可探索的三维地铁回廊" tabindex="0"></canvas>
+<canvas id="world" data-i18n-aria="world" aria-label="可探索的三维地铁回廊" tabindex="0"></canvas>
 <div id="grain" aria-hidden="true"></div>
-<header id="hud" hidden><div class="hud-brand"><span class="symbol">↗</span><div>末班回廊<small>地下联络通道</small></div></div><div class="tools"><button id="sound" aria-label="关闭声音" title="配乐、环境音与广播">声音 开</button><button id="settings-open" aria-label="打开设置">设置 ⚙</button><button id="pause" title="暂停 (Esc)">暂停 Ⅱ</button></div></header>
-<main id="intro" class="overlay"><div class="intro-top"><span>北川地下铁　/　南口联络通道</span><span>末班车后 · 00:08</span></div><div class="intro-content"><p class="eyebrow"><span></span> SOMEWHERE BELOW THE CITY</p><h1>末班<span>回廊</span><small>THE LAST PASSAGE</small></h1><p class="intro-copy">你记得，这条通道没有这么长。</p><button id="start" class="start-button" disabled><span id="start-label">正在亮灯</span><span>↗</span></button><p class="intro-meta">20 种异常　/　约 5–10 分钟</p><button id="intro-settings" class="text-button">画面、操作与声音设置 ⚙</button><p class="mobile-rule">发现异常就折返，无异常就前进。<br>留意标号，抵达 08 号出口。</p></div><aside class="rule-card"><span class="rule-kicker">通行须知 / NOTICE</span><p><b>01</b> 记住这条通道的样子。</p><p><b>02</b> 发现异常，立即折返。</p><p><b>03</b> 没有异常，继续前进。</p><div>留意出口编号，抵达 <strong>08</strong> 号出口。</div></aside><footer class="intro-bottom"><span>W A S D 移动 · 鼠标观察 · Q 转身</span><span>请留意每一处细节。</span></footer></main>
-<section id="paused" class="overlay modal-overlay" hidden><div class="pause-card"><p class="eyebrow">暂时停留</p><h2>通道还在那里。</h2><p>发现异常就原路返回，正常就走向尽头。<br>出口标号记录你的进度。判断失误会回到 00。</p><button id="resume" class="start-button"><span>继续探索</span><span>↗</span></button><button id="pause-settings" class="text-button">画面、操作与声音设置</button><button id="restart" class="text-button">重新开始</button><small>WASD 移动 · Shift 快走 · Q 转身<br>鼠标观察，或按住画面拖动 · 方向键转向</small></div></section>
-<section id="ending" class="overlay modal-overlay" hidden><div class="pause-card"><p class="eyebrow">08 / EXIT FOUND</p><h2>你终于走了出来。</h2><p>地面上的城市，已经醒了。<br>下次，还是赶上末班车吧。</p><button id="replay" class="start-button"><span>再走一次</span><span>↗</span></button><small id="run-stats"></small></div></section>
+<header id="hud" hidden><div class="hud-brand"><span class="symbol">↗</span><div><span data-i18n="title">末班回廊</span><small data-i18n="passage">地下联络通道</small></div></div><div class="tools"><button id="sound" data-i18n-title="soundTitle" aria-label="关闭声音" title="配乐、环境音与广播">声音 开</button><button id="settings-open" data-i18n="settings" data-i18n-aria="openSettings" aria-label="打开设置">设置 ⚙</button><button id="pause" data-i18n="pause" data-i18n-title="pauseTitle" title="暂停 (Esc)">暂停 Ⅱ</button></div></header>
+<main id="intro" class="overlay"><div class="intro-top"><span data-i18n="stationLine">北川地下铁 / 南口联络通道</span><span data-i18n="time">末班车后 · 00:08</span><label class="language-picker"><span data-i18n="language">语言</span><select id="intro-language" data-i18n-aria="language"><option value="auto" data-i18n="languageAuto">跟随浏览器</option><option value="zh-CN" lang="zh-CN">简体中文</option><option value="en" lang="en">English</option><option value="ja" lang="ja">日本語</option></select></label></div><div class="intro-content"><p class="eyebrow"><span aria-hidden="true"></span><b data-i18n="eyebrow">城市之下，某处</b></p><h1><span data-i18n="titleFirst">末班</span><span data-i18n="titleLast">回廊</span><small>THE LAST PASSAGE</small></h1><p class="intro-copy" data-i18n="introCopy">你记得，这条通道没有这么长。</p><button id="start" class="start-button" disabled><span id="start-label">正在亮灯</span><span>↗</span></button><p class="intro-meta" data-i18n="introMeta">20 种异常　/　约 5–10 分钟</p><button id="intro-settings" data-i18n="settingsLink" class="text-button">画面、操作与声音设置 ⚙</button><p class="mobile-rule"><span data-i18n="mobileRule">发现异常就折返，无异常就前进。</span><br><span data-i18n="goal">留意出口编号，抵达 08 号出口。</span></p></div><aside class="rule-card"><span class="rule-kicker" data-i18n="notice">通行须知 / NOTICE</span><p><b>01</b><span data-i18n="rule1">记住这条通道的样子。</span></p><p><b>02</b><span data-i18n="rule2">发现异常，立即折返。</span></p><p><b>03</b><span data-i18n="rule3">没有异常，继续前进。</span></p><div data-i18n="goal">留意出口编号，抵达 08 号出口。</div></aside><footer class="intro-bottom"><span id="intro-controls">WASD 移动 · 鼠标观察 · Q 转身</span><nav class="project-links" data-i18n-aria="linksLabel" aria-label="项目链接"><a href="https://linsama.com/" target="_blank" rel="noopener noreferrer" data-i18n="personalLink">Linsama 个站 ↗</a><a href="https://github.com/LoveOrange/last-train-corridor" target="_blank" rel="noopener noreferrer" data-i18n="githubLink">GitHub 源码 ↗</a></nav></footer></main>
+<section id="paused" class="overlay modal-overlay" hidden><div class="pause-card"><p class="eyebrow" data-i18n="pausedEyebrow">暂时停留</p><h2 data-i18n="pausedTitle">通道还在那里。</h2><p data-i18n="pausedCopy">发现异常就原路返回，正常就走向尽头。出口标号记录你的进度。判断失误会回到 00。</p><button id="resume" class="start-button"><span data-i18n="resume">继续探索</span><span>↗</span></button><button id="pause-settings" data-i18n="settingsLink" class="text-button">画面、操作与声音设置</button><button id="restart" data-i18n="restart" class="text-button">重新开始</button><small data-i18n="controlDetails">WASD 移动 · Shift 快走 · Q 转身</small></div></section>
+<section id="ending" class="overlay modal-overlay" hidden><div class="pause-card"><p class="eyebrow" data-i18n="endingEyebrow">08 / 找到出口</p><h2 data-i18n="endingTitle">你终于走了出来。</h2><p data-i18n="endingCopy">地面上的城市，已经醒了。下次，还是赶上末班车吧。</p><button id="replay" class="start-button"><span data-i18n="replay">再走一次</span><span>↗</span></button><small id="run-stats"></small></div></section>
 <div id="crosshair" hidden aria-hidden="true"></div>
 <div id="message" role="status" aria-live="polite"></div>
-<div id="walk-hint" hidden><span id="hint-copy"></span><small>WASD 移动　·　Q 转身　·　Esc 暂停</small></div>
-<div id="broadcast" role="status" aria-live="polite" hidden><span>站内广播</span><p id="broadcast-text"></p></div>
+<div id="walk-hint" hidden><span id="hint-copy"></span><small data-i18n="walkHint">WASD 移动 · Q 转身 · Esc 暂停</small></div>
+<div id="broadcast" role="status" aria-live="polite" hidden><span data-i18n="broadcast">站内广播</span><p id="broadcast-text"></p></div>
 <div id="touch-controls" hidden>
-  <div id="joystick" aria-label="拖动移动"><div id="stick"></div><span>移动</span></div>
-  <div id="virtual-keys" aria-label="虚拟方向键" hidden>
-    <button data-key="KeyW" aria-label="向前移动">W<small>前进</small></button>
-    <button data-key="KeyA" aria-label="向左移动">A<small>左移</small></button><button data-key="KeyS" aria-label="向后移动">S<small>后退</small></button><button data-key="KeyD" aria-label="向右移动">D<small>右移</small></button>
+  <div id="joystick" data-i18n-aria="dragMove" aria-label="拖动移动"><div id="stick"></div><span data-i18n="move">移动</span></div>
+  <div id="virtual-keys" data-i18n-aria="virtualKeys" aria-label="虚拟方向键" hidden>
+    <button data-key="KeyW" data-i18n-aria="forward" aria-label="向前移动">W<small data-i18n="forward">前进</small></button>
+    <button data-key="KeyA" data-i18n-aria="left" aria-label="向左移动">A<small data-i18n="left">左移</small></button><button data-key="KeyS" data-i18n-aria="back" aria-label="向后移动">S<small data-i18n="back">后退</small></button><button data-key="KeyD" data-i18n-aria="right" aria-label="向右移动">D<small data-i18n="right">右移</small></button>
   </div>
-  <div id="touch-actions"><div class="look-keys"><button data-key="ArrowLeft" aria-label="向左观察">↶<small>左看</small></button><button data-key="ArrowRight" aria-label="向右观察">↷<small>右看</small></button></div><div class="action-keys"><button data-key="ShiftLeft" aria-label="按住快走">⇧<small>快走</small></button><button id="turn" aria-label="转身一百八十度">⤺<small>转身</small></button></div></div>
+  <div id="touch-actions"><div class="look-keys"><button data-key="ArrowLeft" data-i18n-aria="lookLeft" aria-label="向左观察">↶<small data-i18n="lookLeft">左看</small></button><button data-key="ArrowRight" data-i18n-aria="lookRight" aria-label="向右观察">↷<small data-i18n="lookRight">右看</small></button></div><div class="action-keys"><button data-key="ShiftLeft" data-i18n-aria="holdFast" aria-label="按住快走">⇧<small data-i18n="fast">快走</small></button><button id="turn" data-i18n-aria="turnAround" aria-label="转身一百八十度">⤺<small data-i18n="turn">转身</small></button></div></div>
 </div>
 <dialog id="settings" aria-labelledby="settings-title">
-  <div class="settings-heading"><div><p class="eyebrow">MAKE YOURSELF COMFORTABLE</p><h2 id="settings-title">画面、操作与声音</h2></div><button id="settings-close" aria-label="关闭设置">✕</button></div>
-  <p class="settings-note">设置自动保存。探索中打开设置会暂停游戏。</p>
-  <fieldset><legend>探索方式</legend><label class="setting-row" for="difficulty"><span>游戏难度</span><select id="difficulty"><option value="normal">普通 · 只看出口标号</option><option value="easy">简单 · 失败后给提示</option></select></label><p class="setting-help">普通模式不提示判断结果。简单模式仅在失败归零后，解释上一段通道的异常。</p></fieldset>
-  <fieldset><legend>画面与性能</legend>
-    <label class="setting-row" for="quality"><span>画质</span><select id="quality" aria-describedby="quality-help quality-target"><option value="smooth">流畅</option><option value="balanced">均衡 · 推荐</option><option value="high">高画质</option></select></label>
-    <p id="quality-help" class="setting-help"></p><p id="quality-target" class="setting-help">以 60 帧为目标，性能不足时自动降低渲染分辨率，稳定后逐步恢复。暂停或切到后台时停止绘制。</p>
+  <div class="settings-heading"><div><p class="eyebrow" data-i18n="settingsEyebrow">调整到舒适的状态</p><h2 id="settings-title" data-i18n="settingsTitle">画面、操作与声音</h2></div><button id="settings-close" data-i18n-aria="closeSettings" aria-label="关闭设置">✕</button></div>
+  <p class="settings-note" data-i18n="settingsNote">设置自动保存。探索中打开设置会暂停游戏。</p>
+  <fieldset><legend data-i18n="exploration">探索方式</legend><label class="setting-row" for="language"><span data-i18n="language">语言</span><select id="language"><option value="auto" data-i18n="languageAuto">跟随浏览器</option><option value="zh-CN" lang="zh-CN">简体中文</option><option value="en" lang="en">English</option><option value="ja" lang="ja">日本語</option></select></label><label class="setting-row" for="difficulty"><span data-i18n="difficulty">游戏难度</span><select id="difficulty"><option value="normal" data-i18n="normal">普通 · 只看出口标号</option><option value="easy" data-i18n="easy">简单 · 失败后给提示</option></select></label><p class="setting-help" data-i18n="difficultyHelp">普通模式不提示判断结果。简单模式仅在失败归零后，解释上一段通道的异常。</p></fieldset>
+  <fieldset><legend data-i18n="display">画面与性能</legend>
+    <label class="setting-row" for="quality"><span data-i18n="quality">画质</span><select id="quality" aria-describedby="quality-help quality-target"><option value="smooth" data-i18n="smooth">流畅</option><option value="balanced" data-i18n="balanced">均衡 · 推荐</option><option value="high" data-i18n="high">高画质</option></select></label>
+    <p id="quality-help" class="setting-help"></p><p id="quality-target" data-i18n="qualityTarget" class="setting-help">以 60 帧为目标，性能不足时自动降低渲染分辨率，稳定后逐步恢复。暂停或切到后台时停止绘制。</p>
   </fieldset>
-  <fieldset><legend>移动与观察</legend>
-    <label class="setting-row" for="control-mode"><span>屏幕控制</span><select id="control-mode"><option value="auto">自动 · 手机显示摇杆</option><option value="stick">虚拟摇杆</option><option value="keys">虚拟键盘 · WASD</option><option value="off">隐藏屏幕按键</option></select></label>
-    <p class="setting-help">左手移动，右侧空白处滑动观察。按住快走，点按转身。电脑也可以开启屏幕按键。</p>
-    <label class="setting-row" for="control-size"><span>按键大小 <output id="control-size-value"></output></span><input id="control-size" data-setting="controlSize" type="range" min="0.8" max="1.35" step="0.05"></label>
-    <label class="setting-row" for="sensitivity"><span>观察灵敏度 <output id="sensitivity-value"></output></span><input id="sensitivity" data-setting="sensitivity" type="range" min="0.4" max="2" step="0.1"></label>
-    <label class="setting-row" for="reduced-motion"><span>减少晃动与转身动画</span><input id="reduced-motion" type="checkbox"></label>
+  <fieldset><legend data-i18n="controls">移动与观察</legend>
+    <label class="setting-row" for="control-mode"><span data-i18n="screenControls">屏幕控制</span><select id="control-mode"><option value="auto" data-i18n="controlsAuto">自动 · 手机显示摇杆</option><option value="stick" data-i18n="controlsStick">虚拟摇杆</option><option value="keys" data-i18n="controlsKeys">虚拟键盘 · WASD</option><option value="off" data-i18n="controlsOff">隐藏屏幕按键</option></select></label>
+    <p class="setting-help" data-i18n="controlsHelp">左手移动，右侧空白处滑动观察。按住快走，点按转身。电脑也可以开启屏幕按键。</p>
+    <label class="setting-row" for="control-size"><span><span data-i18n="controlSize">按键大小</span> <output id="control-size-value"></output></span><input id="control-size" data-setting="controlSize" type="range" min="0.8" max="1.35" step="0.05"></label>
+    <label class="setting-row" for="sensitivity"><span><span data-i18n="sensitivity">观察灵敏度</span> <output id="sensitivity-value"></output></span><input id="sensitivity" data-setting="sensitivity" type="range" min="0.4" max="2" step="0.1"></label>
+    <label class="setting-row" for="reduced-motion"><span data-i18n="reducedMotion">减少晃动与转身动画</span><input id="reduced-motion" type="checkbox"></label>
   </fieldset>
-  <fieldset><legend>回廊的声音</legend>
-    <label class="setting-row" for="muted"><span>静音</span><input id="muted" type="checkbox"></label>
-    <label class="setting-row" for="volume"><span>总音量 <output id="volume-value"></output></span><input id="volume" data-setting="volume" type="range" min="0" max="1" step="0.05"></label>
-    <label class="setting-row" for="music"><span>氛围配乐 <output id="music-value"></output></span><input id="music" data-setting="music" type="range" min="0" max="1" step="0.05"></label>
-    <label class="setting-row" for="sfx"><span>脚步与环境声 <output id="sfx-value"></output></span><input id="sfx" data-setting="sfx" type="range" min="0" max="1" step="0.05"></label>
-    <label class="setting-row" for="voice"><span>中文广播 <output id="voice-value"></output></span><input id="voice" data-setting="voice" type="range" min="0" max="1" step="0.05"></label>
-    <div class="voice-test"><button id="test-voice" class="text-button">试听站内广播 ↗</button><small id="voice-status">广播始终附带字幕</small></div>
-    <p id="voice-caption" role="status" hidden></p><p class="setting-help">广播使用设备中文语音；没有可用语音时显示字幕。首次播放需要点击进入回廊。配乐与环境声实时合成。</p>
+  <fieldset><legend data-i18n="audio">回廊的声音</legend>
+    <label class="setting-row" for="muted"><span data-i18n="muted">静音</span><input id="muted" type="checkbox"></label>
+    <label class="setting-row" for="volume"><span><span data-i18n="volume">总音量</span> <output id="volume-value"></output></span><input id="volume" data-setting="volume" type="range" min="0" max="1" step="0.05"></label>
+    <label class="setting-row" for="music"><span><span data-i18n="music">氛围配乐</span> <output id="music-value"></output></span><input id="music" data-setting="music" type="range" min="0" max="1" step="0.05"></label>
+    <label class="setting-row" for="sfx"><span><span data-i18n="sfx">脚步与环境声</span> <output id="sfx-value"></output></span><input id="sfx" data-setting="sfx" type="range" min="0" max="1" step="0.05"></label>
+    <label class="setting-row" for="voice"><span><span data-i18n="voice">中文广播</span> <output id="voice-value"></output></span><input id="voice" data-setting="voice" type="range" min="0" max="1" step="0.05"></label>
+    <div class="voice-test"><button id="test-voice" data-i18n="testVoice" class="text-button">试听站内广播 ↗</button><small id="voice-status">广播始终附带字幕</small></div>
+    <p id="voice-caption" role="status" hidden></p><p class="setting-help" data-i18n="voiceHelp">广播使用设备中文语音；没有可用语音时显示字幕。首次播放需要点击进入回廊。配乐与环境声实时合成。</p>
   </fieldset>
-  <button id="settings-done" class="start-button"><span>完成设置</span><span>↗</span></button>
+  <button id="settings-done" class="start-button"><span data-i18n="done">完成设置</span><span>↗</span></button>
 </dialog>
-<div id="error" role="alert" hidden>此浏览器暂时无法启动三维画面。请使用支持 WebGL 2 的浏览器重新打开。</div>
+<div id="error" data-i18n="error" role="alert" hidden>此浏览器暂时无法启动三维画面。请使用支持 WebGL 2 的浏览器重新打开。</div>
 <script type="module" src="./game.js"></script>
 </body></html>

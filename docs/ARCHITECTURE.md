@@ -34,9 +34,15 @@ Canvas resizing clears the drawing buffer. Resize requests are therefore coalesc
 
 ## Audio and input
 
-Web Audio synthesizes the ambient chord loop, station hum, air and footsteps. Audio scheduling runs independently of drawing. SpeechSynthesis provides device-dependent Chinese station announcements with captions as fallback. No audio assets are fetched.
+Web Audio synthesizes the ambient chord loop, station hum, air and footsteps. Audio scheduling runs independently of drawing. SpeechSynthesis selects a device voice matching the current Chinese, English or Japanese language. Captions remain available when a matching voice is missing or audio is muted. No audio assets are fetched.
 
 Keyboard, pointer, joystick and virtual-key inputs feed the same movement model. Pause, focus loss and pointer cancellation clear held inputs. Preferences are validated and stored locally; game progress lasts only for the current session.
+
+## Localization
+
+`i18n.js` contains all three message catalogs, locale negotiation and voice matching. Automatic language selection follows the browser's preferred-language order, with English as the fallback. An explicit selection is stored alongside the existing preferences. Menus, accessibility labels, announcements, easy-mode explanations, posters and physical signs use the same selected locale.
+
+Language switching updates DOM text and cached Canvas textures in place. It does not reload the page, reconstruct geometry, change the anomaly deck or commit a connector preview. All pooled halls and connectors refresh their labels while retaining their current numbers and orientation. New textures upload while the menu is open and are shared between rooms; revisiting a language reuses its cache. Normal mode never exposes anomaly descriptions.
 
 ## Verification
 

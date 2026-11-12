@@ -2,9 +2,13 @@
 
 一个运行在浏览器中的第一人称异常观察游戏。末班车已经离开，你需要辨认地下通道里的异常，找到 **08 号出口**。
 
-**[在线试玩](https://corridor.linsama.com/)** · [实现说明](docs/ARCHITECTURE.md) · [MIT 许可证](LICENSE)
+**[在线试玩](https://corridor.linsama.com/)** · [Linsama 个站](https://linsama.com/) · [实现说明](docs/ARCHITECTURE.md) · [MIT 许可证](LICENSE)
 
 A browser-based observation game inspired by the anomaly-and-return genre. Built with Three.js, with procedural textures, geometry and audio. No backend, downloaded game assets, or runtime AI service.
+
+Available in 简体中文, English and 日本語. Choose your language on the title screen or in Settings; changing it during play preserves your progress.
+
+タイトル画面または設定から日本語を選べます。プレイ中に言語を変更しても進捗は保たれます。
 
 ## 怎么玩
 
@@ -18,10 +22,11 @@ A browser-based observation game inspired by the anomaly-and-return genre. Built
 ## 特点
 
 - **20 种异常**，覆盖灯光、海报、标识、设施和地面细节。
+- **中英日三语**：菜单、提示、字幕、场景标牌与海报同步切换；默认跟随浏览器，也可手动选择并保存。
 - **连续回廊**：通过拐角遮挡复用场景，不用黑屏连接关卡。
 - **手机操作**：虚拟摇杆或 WASD 按键，可调大小、灵敏度与转身动画。
 - **三档画质**：流畅、均衡（默认）、高画质；以 60 FPS 为目标自动调整渲染分辨率，实际帧率取决于设备。
-- **程序化声音**：Web Audio 合成配乐、环境声和脚步声；中文广播使用设备语音，并提供字幕。
+- **程序化声音**：Web Audio 合成配乐、环境声和脚步声；广播匹配当前语言的设备语音，并提供字幕。
 - **轻量静态部署**：没有后端、账号系统或运行时 AI 调用。几何、纹理和声音在本地生成。
 
 ## 本地运行
@@ -47,7 +52,7 @@ npm run dev
 | 转身 | Q | 转身键 |
 | 暂停 | Esc / P | 暂停按钮 |
 
-设置保存在当前浏览器中；刷新页面会重新开始本次探索。首次开启声音需要点击进入游戏。设备未提供中文语音时，广播会保留字幕。
+设置保存在当前浏览器中；刷新页面会重新开始本次探索。语言切换即时生效，不会重置当前进度或异常。首次开启声音需要点击进入游戏。设备未提供所选语言的语音时，广播会保留对应字幕。
 
 ## 构建与部署
 
@@ -84,8 +89,9 @@ npx wrangler@4 deploy
 | `src/stairs.js` | 楼梯、行走坡面与扶手的共同尺寸 |
 | `src/audio.js` | 合成配乐、环境音、脚步和广播 |
 | `src/settings.js` | 设置校验与持久化 |
+| `src/i18n.js` | 三语文案、语言匹配、设备语音选择与界面翻译 |
 
-`npm test` 使用 Node.js 内置测试工具，覆盖解谜规则、连接区折返、场景朝向、碰撞、画质调节和扶手接合。光影和帧率还需要浏览器验证。
+`npm test` 使用 Node.js 内置测试工具，覆盖解谜规则、连接区折返、场景朝向、碰撞、画质调节、扶手接合、翻译完整性、语言保存和语音回退。光影和帧率还需要浏览器验证。
 
 在 `127.0.0.1` 上添加 `?qa=1` 可开启本地调试接口，例如 `window.__corridorQA.snapshot()`；`?qa=1&preview=eyes` 可在进入游戏后检查指定异常。线上域名不会开放这些接口。
 
