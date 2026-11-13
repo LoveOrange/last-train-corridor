@@ -13,6 +13,7 @@ import {PassageLoop,START} from './layout.js';
 import {readSettings,saveSettings} from './settings.js';
 import {QUALITY,pixelRatio,AdaptiveResolution} from './quality.js';
 import {resolveLanguage,translate,translateDocument} from './i18n.js';
+import {bindJoystick} from './joystick.js';
 
 const $=id=>document.getElementById(id),canvas=$('world');
 const touch=matchMedia('(pointer:coarse)').matches,systemReduceMotion=matchMedia('(prefers-reduced-motion:reduce)').matches;
@@ -27,12 +28,12 @@ const resolution=new AdaptiveResolution();
 const params=new URLSearchParams(location.search),qa=location.hostname==='127.0.0.1'&&params.has('qa');
 document.body.classList.toggle('touch',touch);
 const frameTimes=[];
-let settingsReturn='intro',captionTimer,controlHintTimer,settingsOpener=null,stickPointer=null,lastCrossing=null,captionKey=null,messageContent=null;
+let settingsReturn='intro',captionTimer,controlHintTimer,settingsOpener=null,joystickControl=null,lastCrossing=null,captionKey=null,messageContent=null;
 const hasKey=key=>keys.has(key)||virtualKeys.has(key);
 const controlMode=()=>settings.controls==='auto'?(touch?'stick':'off'):settings.controls;
 function showCaption(text){clearTimeout(captionTimer);if(phase==='won'){$('ending-caption').textContent=text;$('broadcast').hidden=true;return;}$('broadcast-text').textContent=text;$('broadcast').hidden=false;if(phase==='settings'){$('voice-caption').textContent=text;$('voice-caption').hidden=false;}captionTimer=setTimeout(()=>$('broadcast').hidden=true,Math.max(6000,text.length*240));}
 function updateControls(){const mode=controlMode();document.body.classList.toggle('has-controls',exploring()&&mode!=='off');document.documentElement.style.setProperty('--control-scale',Math.min(settings.controlSize,mode==='keys'?Math.max(.8,(innerWidth-48)/302):1.35));$('touch-controls').hidden=!exploring()||mode==='off';$('joystick').hidden=mode!=='stick';$('virtual-keys').hidden=mode!=='keys';}
-function applySettings(){saveSettings(settings);audio.configure(settings,language);updateControls();$('sound').textContent=t(audio.enabled?'soundOn':'soundOff');$('sound').setAttribute('aria-label',t(audio.enabled?'mute':'unmute'));}
+function applySettings(){$('move-mode').setAttribute('aria-pressed',String(settings.running));$('move-mode').setAttribute('aria-label',t(settings.running?'tapToWalk':'tapToRun'));$('move-mode').querySelector('small').textContent=t(settings.running?'run':'walk');saveSettings(settings);audio.configure(settings,language);updateControls();$('sound').textContent=t(audio.enabled?'soundOn':'soundOff');$('sound').setAttribute('aria-label',t(audio.enabled?'mute':'unmute'));}
 function syncSettings(){ $('language').value=$('intro-language').value=settings.language;$('quality').value=settings.quality;$('quality-help').textContent=t('quality.'+settings.quality);$('difficulty').value=settings.difficulty;$('control-mode').value=settings.controls;$('muted').checked=settings.muted;$('reduced-motion').checked=settings.reducedMotion;for(const input of document.querySelectorAll('[data-setting]')){input.value=settings[input.dataset.setting];$(input.id+'-value').textContent=input.dataset.setting==='sensitivity'?`${Number(input.value).toFixed(1)}×`:`${Math.round(Number(input.value)*100)}%`;}audio.refreshVoices();$('voice-status').textContent=audio.voiceState;}
 function openSettings(e){settingsOpener=e?.currentTarget;settingsReturn=phase;phase='settings';stopRendering();hideInputs();updateControls();audio.pause(true);document.exitPointerLock?.();syncSettings();$('voice-caption').hidden=true;document.body.classList.add('settings-open');$('settings').showModal();}
 function closeSettings(){if(!$('settings').open)return;$('settings').close();document.body.classList.remove('settings-open');$('broadcast').hidden=true;if(settingsReturn==='playing')play();else{phase=settingsReturn;updateControls();requestRender();settingsOpener?.focus();}}
@@ -59,7 +60,7 @@ window.addEventListener('languagechange',()=>{if(settings.language==='auto')appl
 applyLanguage();
 function renderMessage(){if(!messageContent)return;const {title,detail}=messageContent;$('message').replaceChildren();const text=document.createElement('span');text.textContent=title();$('message').append(text);if(detail){const small=document.createElement('small');small.textContent=detail();$('message').append(small);}}
 function showMessage(title,detail=null,duration=4000){clearTimeout(messageTimer);messageContent={title,detail};renderMessage();$('message').classList.add('visible');messageTimer=setTimeout(()=>{$('message').classList.remove('visible');messageContent=null;},duration);}
-function hideInputs(){keys.clear();virtualKeys.clear();keyPointers.clear();document.querySelectorAll('[data-key]').forEach(b=>b.classList.remove('pressed'));joystick.x=joystick.y=0;$('stick').style.transform='';lookPointer=null;stickPointer=null;}
+function hideInputs(){keys.clear();virtualKeys.clear();keyPointers.clear();document.querySelectorAll('[data-key]').forEach(b=>b.classList.remove('pressed'));joystickControl?.reset();joystick.x=joystick.y=0;$('stick').style.transform='';lookPointer=null;}
 function requestMouse(){if(touch||controlMode()!=='off')return;try{const p=canvas.requestPointerLock?.();p?.catch(()=>{});}catch{}}
 function resetPosition(){Object.assign(player,{...START,pitch:0,bob:0});turnTarget=null;hideInputs();}
 function play(){
@@ -117,18 +118,24 @@ window.addEventListener('keydown',e=>{if(phase==='settings')return;if(['Escape',
 window.addEventListener('keyup',e=>keys.delete(e.code));window.addEventListener('blur',pause);document.addEventListener('visibilitychange',()=>{if(document.hidden){pause();stopRendering();audio.pause(true);}else{if(phase==='playing'||phase==='won')audio.pause(false);requestRender();}});
 let hadLock=false;document.addEventListener('pointerlockchange',()=>{const locked=document.pointerLockElement===canvas;if(hadLock&&!locked&&exploring())pause();hadLock=locked;});
 document.addEventListener('mousemove',e=>{if(exploring()&&document.pointerLockElement===canvas){player.yaw-=e.movementX*.0018*settings.sensitivity;player.pitch=THREE.MathUtils.clamp(player.pitch-e.movementY*.0018*settings.sensitivity,-1.25,1.25);turnTarget=null;}});
-canvas.addEventListener('pointerdown',e=>{if(!exploring()||document.pointerLockElement===canvas)return;lookPointer=e.pointerId;lastLook={x:e.clientX,y:e.clientY};canvas.setPointerCapture(e.pointerId);});
+canvas.addEventListener('pointerdown',e=>{if(!exploring()||document.pointerLockElement===canvas)return;lookPointer=e.pointerId;lastLook={x:e.clientX,y:e.clientY};try{canvas.setPointerCapture(e.pointerId);}catch{}});
 canvas.addEventListener('pointermove',e=>{if(!exploring()||lookPointer!==e.pointerId||document.pointerLockElement===canvas)return;player.yaw-=(e.clientX-lastLook.x)*.004*settings.sensitivity;player.pitch=THREE.MathUtils.clamp(player.pitch-(e.clientY-lastLook.y)*.004*settings.sensitivity,-1.25,1.25);lastLook={x:e.clientX,y:e.clientY};turnTarget=null;});
-const endLook=e=>{if(e.pointerId===lookPointer)lookPointer=null;};canvas.addEventListener('pointerup',endLook);canvas.addEventListener('pointercancel',endLook);canvas.addEventListener('contextmenu',e=>e.preventDefault());
-const stick=$('joystick');
-function setStick(e){const b=stick.getBoundingClientRect(),radius=b.width*.38;let x=(e.clientX-b.left-b.width/2)/radius,y=(e.clientY-b.top-b.height/2)/radius;const len=Math.hypot(x,y);if(len>1){x/=len;y/=len;}joystick.x=x;joystick.y=y;$('stick').style.transform=`translate(${x*32}px,${y*32}px)`;}
-stick.addEventListener('pointerdown',e=>{if(!exploring()||stickPointer!==null)return;e.preventDefault();stickPointer=e.pointerId;stick.setPointerCapture(e.pointerId);setStick(e);});
-stick.addEventListener('pointermove',e=>{if(exploring()&&e.pointerId===stickPointer)setStick(e);});
-for(const event of ['pointerup','pointercancel','lostpointercapture'])stick.addEventListener(event,e=>{if(e.pointerId===stickPointer){stickPointer=null;joystick.x=joystick.y=0;$('stick').style.transform='';}});
+const endLook=e=>{if(e.pointerId===lookPointer)lookPointer=null;};window.addEventListener('pointerup',endLook,true);window.addEventListener('pointercancel',endLook,true);canvas.addEventListener('lostpointercapture',endLook);canvas.addEventListener('contextmenu',e=>e.preventDefault());
+joystickControl=bindJoystick($('joystick'),{enabled:exploring,onChange:(x,y)=>{joystick.x=x;joystick.y=y;$('stick').style.transform=x||y?`translate(${x*32}px,${y*32}px)`:'';}});
 for(const button of document.querySelectorAll('[data-key]')){
-  button.addEventListener('pointerdown',e=>{if(!exploring())return;e.preventDefault();button.setPointerCapture(e.pointerId);keyPointers.set(e.pointerId,button.dataset.key);virtualKeys.add(button.dataset.key);button.classList.add('pressed');});
-  for(const event of ['pointerup','pointercancel','lostpointercapture'])button.addEventListener(event,e=>{const key=keyPointers.get(e.pointerId);keyPointers.delete(e.pointerId);if(key&&![...keyPointers.values()].includes(key)){virtualKeys.delete(key);button.classList.remove('pressed');}});
+  button.addEventListener('pointerdown',e=>{if(!exploring())return;e.preventDefault();try{button.setPointerCapture(e.pointerId);}catch{}keyPointers.set(e.pointerId,button.dataset.key);virtualKeys.add(button.dataset.key);button.classList.add('pressed');});
+  button.addEventListener('lostpointercapture',endVirtualKey);
 }
+function endVirtualKey(event){
+  const key=keyPointers.get(event.pointerId);keyPointers.delete(event.pointerId);
+  if(key&&![...keyPointers.values()].includes(key)){virtualKeys.delete(key);for(const button of document.querySelectorAll('[data-key]'))if(button.dataset.key===key)button.classList.remove('pressed');}
+}
+window.addEventListener('pointerup',endVirtualKey,true);window.addEventListener('pointercancel',endVirtualKey,true);
+function toggleMoveMode(){if(!exploring())return;settings.running=!settings.running;applySettings();}
+// A second finger must be able to toggle speed while the joystick is held.
+// Touchstart prevents the delayed compatibility click from toggling it twice.
+$('move-mode').addEventListener('touchstart',event=>{event.preventDefault();toggleMoveMode();},{passive:false});
+$('move-mode').addEventListener('click',toggleMoveMode);
 $('touch-controls').addEventListener('contextmenu',e=>e.preventDefault());
 function stopRendering(){cancelAnimationFrame(renderRequest);renderRequest=0;lastTime=0;resolution.resetWindow();}
 function requestRender(){if(ready&&!document.hidden&&!renderRequest)renderRequest=requestAnimationFrame(animate);}
@@ -153,7 +160,7 @@ function move(dt){
   if(hasKey('ArrowLeft')){player.yaw+=dt*1.6;turnTarget=null;}if(hasKey('ArrowRight')){player.yaw-=dt*1.6;turnTarget=null;}
   if(turnTarget!==null){if(reduced()){player.yaw=turnTarget;turnTarget=null;}else{player.yaw=THREE.MathUtils.damp(player.yaw,turnTarget,12,dt);if(Math.abs(player.yaw-turnTarget)<.01){player.yaw=turnTarget;turnTarget=null;}}}
   let forward=Number(hasKey('KeyW')||hasKey('ArrowUp'))-Number(hasKey('KeyS')||hasKey('ArrowDown'))-joystick.y,side=Number(hasKey('KeyD'))-Number(hasKey('KeyA'))+joystick.x;
-  const len=Math.hypot(forward,side);if(len>1){forward/=len;side/=len;}const speed=(hasKey('ShiftLeft')||hasKey('ShiftRight'))?3.8:2.5;
+  const len=Math.hypot(forward,side);if(len>1){forward/=len;side/=len;}const speed=(settings.running||hasKey('ShiftLeft')||hasKey('ShiftRight'))?3.8:2.5;
   let dx=(-Math.sin(player.yaw)*forward+Math.cos(player.yaw)*side)*speed*dt,dz=(-Math.cos(player.yaw)*forward-Math.sin(player.yaw)*side)*speed*dt;
   const {x:nx,z:nz}=world.move(player.x,player.z,dx,dz);
   const boundedZ=phase==='gallery-view'?Math.max(-38.5,Math.min(4.5,nz)):nz;

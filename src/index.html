@@ -24,7 +24,7 @@
     <button data-key="KeyW" data-i18n-aria="forward" aria-label="向前移动">W<small data-i18n="forward">前进</small></button>
     <button data-key="KeyA" data-i18n-aria="left" aria-label="向左移动">A<small data-i18n="left">左移</small></button><button data-key="KeyS" data-i18n-aria="back" aria-label="向后移动">S<small data-i18n="back">后退</small></button><button data-key="KeyD" data-i18n-aria="right" aria-label="向右移动">D<small data-i18n="right">右移</small></button>
   </div>
-  <div id="touch-actions"><div class="look-keys"><button data-key="ArrowLeft" data-i18n-aria="lookLeft" aria-label="向左观察">↶<small data-i18n="lookLeft">左看</small></button><button data-key="ArrowRight" data-i18n-aria="lookRight" aria-label="向右观察">↷<small data-i18n="lookRight">右看</small></button></div><div class="action-keys"><button data-key="ShiftLeft" data-i18n-aria="holdFast" aria-label="按住快走">⇧<small data-i18n="fast">快走</small></button><button id="turn" data-i18n-aria="turnAround" aria-label="转身一百八十度">⤺<small data-i18n="turn">转身</small></button></div></div>
+  <div id="touch-actions"><div class="look-keys"><button data-key="ArrowLeft" data-i18n-aria="lookLeft" aria-label="向左观察">↶<small data-i18n="lookLeft">左看</small></button><button data-key="ArrowRight" data-i18n-aria="lookRight" aria-label="向右观察">↷<small data-i18n="lookRight">右看</small></button></div><div class="action-keys"><button id="move-mode" aria-label="当前行走，点击切换奔跑" aria-pressed="false">⇧<small>行走</small></button><button id="turn" data-i18n-aria="turnAround" aria-label="转身一百八十度">⤺<small data-i18n="turn">转身</small></button></div></div>
 </div>
 <dialog id="settings" aria-labelledby="settings-title">
   <div class="settings-heading"><div><p class="eyebrow" data-i18n="settingsEyebrow">调整到舒适的状态</p><h2 id="settings-title" data-i18n="settingsTitle">画面、操作与声音</h2></div><button id="settings-close" data-i18n-aria="closeSettings" aria-label="关闭设置">✕</button></div>
@@ -36,7 +36,7 @@
   </fieldset>
   <fieldset><legend data-i18n="controls">移动与观察</legend>
     <label class="setting-row" for="control-mode"><span data-i18n="screenControls">屏幕控制</span><select id="control-mode"><option value="auto" data-i18n="controlsAuto">自动 · 手机显示摇杆</option><option value="stick" data-i18n="controlsStick">虚拟摇杆</option><option value="keys" data-i18n="controlsKeys">虚拟键盘 · WASD</option><option value="off" data-i18n="controlsOff">隐藏屏幕按键</option></select></label>
-    <p class="setting-help" data-i18n="controlsHelp">左手移动，右侧空白处滑动观察。按住快走，点按转身。电脑也可以开启屏幕按键。</p>
+    <p class="setting-help" data-i18n="controlsHelp">左手移动，右侧空白处滑动观察。点击「行走 / 奔跑」切换速度，松开摇杆即停。点按转身。电脑也可以开启屏幕按键。</p>
     <label class="setting-row" for="control-size"><span><span data-i18n="controlSize">按键大小</span> <output id="control-size-value"></output></span><input id="control-size" data-setting="controlSize" type="range" min="0.8" max="1.35" step="0.05"></label>
     <label class="setting-row" for="sensitivity"><span><span data-i18n="sensitivity">观察灵敏度</span> <output id="sensitivity-value"></output></span><input id="sensitivity" data-setting="sensitivity" type="range" min="0.4" max="2" step="0.1"></label>
     <label class="setting-row" for="reduced-motion"><span data-i18n="reducedMotion">减少晃动与转身动画</span><input id="reduced-motion" type="checkbox"></label>

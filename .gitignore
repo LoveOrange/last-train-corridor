@@ -11,3 +11,5 @@ dist/
 *.log
 *.tar.gz
 wrangler.jsonc
+
+test-results/

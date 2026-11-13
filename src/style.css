@@ -53,3 +53,5 @@ html[lang=ja] h1{font-family:"Hiragino Mincho ProN","Yu Mincho","Songti SC",seri
 @media(max-height:600px){#intro-gallery{display:inline-block;margin-right:18px}.intro-content{margin-top:12px}#gallery-view{padding-top:calc(12px + var(--host-top,env(safe-area-inset-top,0px)))}#gallery-view h2{margin:4px 0}}
 
 #ending-home{display:block;width:250px;margin:12px auto 0;padding:12px 18px;border:1px solid #c5d1b855;color:#e0e6d1}#ending-caption{font-size:10px;line-height:1.8;margin:12px 0 0;color:#a9bba3}#ending .pause-card{width:100%}
+
+#touch-controls button[aria-pressed="true"]{background:#d8d49a66;border-color:#ede6b6}#touch-controls button[aria-pressed="true"] small{color:#fff3bd}

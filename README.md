@@ -112,3 +112,7 @@ npx wrangler@4 deploy
 结算页和暂停页支持回到首页，首页可打开 20 项异常画廊。正确通过异常并完成判定后立即收录；仅看见异常、在连接通道中途折返、判断失败、通过正常通道，都不会解锁。后续失误和重新挑战不会清空已收录内容。
 
 未解锁项隐藏异常说明，已解锁项可进入原三维场景自由观察，浏览不会触发挑战计分。收录记录使用浏览器本地存储，刷新后保留；存储不可用时只在本次打开期间保留，并在画廊内提示。旧版本没有保存挑战历史，无法追溯解锁。
+
+### Mobile input regression
+
+With the local server running, run `node tests/mobile-regression.mjs`. This optional check requires Playwright and Google Chrome; `PLAYWRIGHT_MODULE` can point to an existing Playwright module and `BROWSER_CHANNEL` selects another installed Chromium channel. `EVIDENCE_DIR` overrides `test-results/mobile/`. The check covers missed pointer capture, touch cancellation, multiple fingers, saved walk/run mode, translated controls, orientation changes and desktop Shift behavior. Browser emulation does not replace physical-phone testing.
